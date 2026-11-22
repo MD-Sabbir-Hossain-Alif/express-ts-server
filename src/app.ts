@@ -4,6 +4,7 @@ import express, {
     type Response,
 } from "express";
 import { userRoute } from "./modules/user/user.route";
+import { profileRoute } from "./modules/profile/profile.route";
 
 const app: Application = express();
 
@@ -13,6 +14,9 @@ app.use(express.json());
 
 //? Users route
 app.use("/api/v1/users", userRoute);
+
+//? Users profile route
+app.use("/api/v1/profile", profileRoute);
 
 
 //? Root route
