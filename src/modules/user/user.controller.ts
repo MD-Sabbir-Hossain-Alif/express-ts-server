@@ -1,20 +1,9 @@
 import type { Request, Response } from "express";
-import { pool } from "../../db";
+import { userService } from "./user.service";
 
 export const createUser = async (req: Request, res: Response) => {
-    // console.log(req.body);
-
     try {
-        const { name, email, password, age } = req.body;
-
-        const result = await pool.query(
-            `
-        INSERT INTO users (name, email, password, age)
-        VALUES ($1, $2, $3, $4) RETURNING *
-        `,
-            [name, email, password, age],
-        );
-
+        const result = await userService.createUserIntoDB(req.body);
         // console.log(result);
 
         res.status(201).json({
@@ -32,6 +21,5 @@ export const createUser = async (req: Request, res: Response) => {
 };
 
 export const userController = {
-    createUser
-}
-
+    createUser,
+};
