@@ -21,8 +21,12 @@ const createUser = async (req: Request, res: Response) => {
 };
 
 const getAllUser = async (req: Request, res: Response) => {
+    // TODO: checking user in req, console.log("From contorler:", req.user) 
+    
     try {
         const result = await userService.getAllUsersFromDB();
+
+        delete result.rows[0].password
 
         res.status(200).json({
             success: true,
