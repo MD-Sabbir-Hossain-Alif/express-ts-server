@@ -55,7 +55,7 @@ const auth = (...roles: Role[]) => {
 
             // user.role = "admin"
             if (roles.length && !roles.includes(user.role)) {
-                return res.status(401).json({
+                res.status(401).json({
                     success: false,
                     message: "Unauthorized user request!",
                 });
@@ -68,9 +68,9 @@ const auth = (...roles: Role[]) => {
             // console.log(req.user);
 
             next();
-        } catch (error: any) {
-            // console.log("Loggin from error...")
-            next(error)
+        } catch (err: any) {
+            // console.log("Loggin from err...")
+            next(err)
         }
     };
 };
