@@ -22,7 +22,7 @@ const auth = (...roles: Role[]) => {
         }
 
         try {
-            const decode = jwt.verify(token, config.jwtSecret) as JwtPayload;
+            const decode = jwt.verify(token, config.access_Secret) as JwtPayload;
             const result = await pool.query(
                 `
             SELECT * FROM users WHERE email=$1
@@ -55,7 +55,7 @@ const auth = (...roles: Role[]) => {
 
             // user.role = "admin"
             if (roles.length && !roles.includes(user.role)) {
-                res.status(401).json({
+                res.status(401).json({  // if i user return here it won't give any jwt malformed err
                     success: false,
                     message: "Unauthorized user request!",
                 });

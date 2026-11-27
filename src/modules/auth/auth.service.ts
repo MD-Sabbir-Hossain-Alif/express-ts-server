@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { pool } from "../../db";
-import jwt from "jsonwebtoken";
+import jwt, { type JwtPayload } from "jsonwebtoken";
 import config from "../../config";
 
 const loginUser = async (payload: { email: string; password: string }) => {
@@ -14,7 +14,7 @@ const loginUser = async (payload: { email: string; password: string }) => {
         [email],
     );
 
-    const user = result.rows[0]
+    const user = result.rows[0];
 
     if (!result.rowCount) {
         console.log("From Email: ", user);
@@ -42,11 +42,15 @@ const loginUser = async (payload: { email: string; password: string }) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
     };
 
-    const accessToken = jwt.sign(jwtPayload, config.jwtSecret, {
-        expiresIn: "1d",
+    const accessToken = jwt.sign(jwtPayload, config.access_Secret, {
+        expiresIn: "15m",
+    });
+
+    const refreshToken = jwt.sign(jwtPayload, config.refresh_Secret, {
+        expiresIn: "7d",
     });
 
     // Strip password from the response
@@ -55,10 +59,52 @@ const loginUser = async (payload: { email: string; password: string }) => {
     // Return the token
     return {
         accessToken,
+        refreshToken,
         user: user,
     };
 };
 
+const generateAccessToken = async (token: string) => {
+    if (!token) {
+        throw new Error("Access Token Error");
+    }
+
+    const decode = jwt.verify(token, config.refresh_Secret) as JwtPayload;
+    const result = await pool.query(
+        `
+            SELECT * FROM users WHERE email=$1
+            `,
+        [decode.email],
+    );
+
+    const user = result.rows[0];
+    console.log(user);
+
+    if (!result.rowCount) {
+        // console.log("Loggin from user...");
+        throw new Error("User not valid!");
+    }
+
+    if (!user.is_active) {
+        // console.log("Loggin from active...");
+        throw new Error("Forbidden!");
+    }
+
+    const jwtPayload = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+    };
+
+    const accessToken = jwt.sign(jwtPayload, config.access_Secret, {
+        expiresIn: "15m",
+    });
+
+    return {accessToken}
+};;
+
 export const authService = {
     loginUser,
+    generateAccessToken,
 };

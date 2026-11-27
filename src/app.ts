@@ -9,6 +9,7 @@ import { authRoute } from "./modules/auth/auth.route";
 import logger from "./middleware/logger";
 import globalErrorHandler from "./middleware/globalErrorHandler";
 import cors from "cors"
+import cookieParser from "cookie-parser"
 
 const app: Application = express();
 
@@ -22,6 +23,7 @@ app.use(
 app.use(express.json());
 // app.use(express.text())
 // app.use(express.urlencoded({extended: true}))
+app.use(cookieParser());
 
 // TODO: logger meddleware ---> ꪜDone
 app.use(logger);
